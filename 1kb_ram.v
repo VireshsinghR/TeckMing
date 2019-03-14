@@ -1,15 +1,17 @@
-module single_port_syn_ram (
-input		clk,
-input		rstn,
-input		en,
-input		wr_rdn,
-input	[9:0]	addr,
-input	[31:0]	data_wr,
-output reg[31:0]data_rd
+module single_port_syn_ram #(
+parameter data_width = 32,
+parameter addr_width = 10
+)(
+input				clk,
+input				rstn,
+input				en,
+input				wr_rdn,
+input	[addr_width-1:0]	addr,
+input	[data_width-1:0]	data_wr,
+output reg[data_width-1:0]	data_rd
 );
 
-//reg	[31:0]	data_wr;
-reg	[31:0]	ram [1023:0];
+reg	[data_width-1:0]	ram [1023:0];
 
 always@(posedge clk or negedge rstn)begin
 	if(!rstn)begin

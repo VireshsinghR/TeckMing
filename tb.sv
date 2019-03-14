@@ -1,14 +1,15 @@
 module single_port_syn_ram_tb;
+parameter data_width = 32;
+parameter addr_width = 10;
+reg				clk;
+reg				rstn;
+reg				en;
+reg				wr_rdn;
+reg	[addr_width-1:0]	addr;
+reg	[data_width-1:0]	data_wr;
+wire	[data_width-1:0]	data_rd;
 
-reg		clk;
-reg		rstn;
-reg		en;
-reg		wr_rdn;
-reg	[9:0]	addr;
-reg	[31:0]	data_wr;
-wire	[31:0]	data_rd;
-
-reg	[9:0]	x;
+reg	[addr_width-1:0]	x;
 
 single_port_syn_ram dut(clk,rstn,en,wr_rdn,addr,data_wr,data_rd);
 
@@ -34,8 +35,8 @@ $finish;
 end
 
 task write;
-input [31:0]	data_in;
-input [9:0]	addr1;
+input [data_width-1:0]	data_in;
+input [addr_width-1:0]	addr1;
 begin
 	@(posedge clk);
 	wr_rdn = 1;	
@@ -50,7 +51,7 @@ end
 endtask
 
 task read;
-input [9:0]	addr2;
+input [addr_width-1:0]	addr2;
 begin
 	@(posedge clk);
 	wr_rdn = 0;
