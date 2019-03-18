@@ -1,73 +1,71 @@
-module single_port_syn_ram_tb;
-parameter data_width = 32;
-parameter addr_width = 10;
-reg				clk;
-reg				rstn;
-reg				en;
-reg				wr_rdn;
-reg	[addr_width-1:0]	addr;
-reg	[data_width-1:0]	data_wr;
-wire	[data_width-1:0]	data_rd;
+module mem_tb ();
+reg clk =0;
+reg rst;
+reg wr_rd; 						// 1= wr, 0 = rd 
+reg [`ADDR_WIDTH-1:0]addr;
+reg [`DATA_WIDTH-1:0]wr_data;
+reg en;
+wire [`DATA_WIDTH-1:0]rd_data; 
 
-reg	[addr_width-1:0]	x;
+mem dut (.clk(clk), .rst(rst), .wr_rd(wr_rd), .addr(addr), .wr_data(wr_data), .en(en), .rd_data(rd_data));
 
-single_port_syn_ram dut(clk,rstn,en,wr_rdn,addr,data_wr,data_rd);
+bit [`ADDR_WIDTH-1:0]addr_array[10];
 
-initial begin
-	clk = 0;
+
+initial 
+begin
 	forever #5 clk = ~clk;
 end
 
-initial begin
-rstn = 0;
-en = 0;
-wr_rdn = 0;
-addr = 0;
-data_wr = 0;
-#10;
-rstn = 1;
-repeat (5) begin
-	x = $random;
-	write($random,x);
-	read(x);
-end
-$finish;
-end
 
-task write;
-input [data_width-1:0]	data_in;
-input [addr_width-1:0]	addr1;
+initial 
 begin
-	@(posedge clk);
-	wr_rdn = 1;	
-	data_wr = data_in;
-	addr = addr1;
-	@(posedge clk);
-	en = 1;
-	@(posedge clk);
-	en = 0;
-	wr_rdn = 0;
-end
-endtask
-
-task read;
-input [addr_width-1:0]	addr2;
-begin
-	@(posedge clk);
-	wr_rdn = 0;
-	addr = addr2;
-	@(posedge clk);
-	en = 1;
-	@(posedge clk);
-	en = 0;
-end
-endtask
+	automatic int j=0;
 	
+	fork 
+		begin
+		reset();
+		end
+
+		begin
+		foreach(addr_array[i]) 
+			begin	addr_array[i] = $urandom; end
+				
+		end
+	join
+
+	repeat(5) begin
+			@(posedge clk); 
+			write(addr_array[j++]);  	
+		  end
+		
+		 j=0;
+	repeat(5) begin
+			@(posedge clk);
+			read(addr_array[j++]);
+		  end
+		  #10; en<=0;
+
+#200 $finish;
+end
+
+function void write(input bit [`ADDR_WIDTH-1:0]wr_addr);
+	en	<=1;
+	wr_rd 	<=1;
+	addr	<= wr_addr;
+	wr_data <= $urandom;
+endfunction
+
+function void read( input bit [`ADDR_WIDTH-1:0]rd_addr);
+	en	<=1;
+	wr_rd 	<=0;
+	addr	<= rd_addr;
+endfunction
+
+task reset();
+	rst <= 0;
+	#10;
+	rst <=1;
+endtask
+
 endmodule
-
-
-
-
-
-
-
