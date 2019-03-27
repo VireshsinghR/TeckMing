@@ -11,11 +11,11 @@ input logic	[data_width-1:0]	data_wr,
 output logic	[data_width-1:0]	data_rd
 );
 
-reg	[(2**addr_width)-1:0][data_width-1:0] 	ram; 
+reg	[(2**addr_width)-1:0][data_width-1:0] 	ram_mem; 
 
 always@(posedge clk or negedge rstn)begin
 		if(en && wr_rdn)begin
-			ram[addr] <= data_wr;
+			ram_mem[addr] <= data_wr;
 			//$display("DUT = %h data has been written into ram address %h at %0t ns ",data_wr,addr,$time);
 		end
 end
@@ -27,7 +27,7 @@ always@(posedge clk or negedge rstn)begin
 	end
 	else begin
 		if(en && !wr_rdn)begin  
-			data_rd <= ram[addr];
+			data_rd <= ram_mem[addr];
 			//$display("DUT = ram address %h data is %h at %0t ns",addr,data_rd,$time);
 		end
 	end
